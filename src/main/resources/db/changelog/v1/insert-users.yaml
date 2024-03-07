@@ -80,7 +80,7 @@ databaseChangeLog:
                   value: "$2a$12$v4FmjDN/Q/fyE2GtLhCZSuO64kWoEhrxm2LSo.yeNihGrRQ2V5q5y"
               - column:
                   name: phone
-                  value: "+37525123335123"
+                  value: "+375251235123"
               - column:
                   name: roles
                   value: "{ROLE_ADMIN}"

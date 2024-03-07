@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table
+      author: Vsevolod
+      changes:
+        - createTable:
+            tableName: app_users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: phone
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: roles
+                  type: varchar[]
+                  constraints:
+                    unique: false
+                    nullable: false
+        - createTable:
+            tableName: proposals
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: phone
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: message
+                  type: varchar(255)
+                  constraints:
+                    unique: false
+                    nullable: false
+              - column:
+                  name: date_of_create
+                  type: date
+                  constraints:
+                    unique: false
+                    nullable: false
+        - createTable:
+            tableName: app_users_proposals
+            columns:
+              - column:
+                  name: proposals_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_user_proposal
+                    references: proposals(id)
+                    unique: false
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_proposal_user
+                    references: app_users(id)
+                    nullable: false
