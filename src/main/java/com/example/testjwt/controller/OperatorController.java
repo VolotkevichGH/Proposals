@@ -7,10 +7,8 @@ import com.example.testjwt.repositories.UserRepository;
 import com.example.testjwt.services.ProposalService;
 import com.example.testjwt.web.ChangeStatusRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -26,85 +24,20 @@ public class OperatorController {
     private final ProposalRepository proposalRepository;
 
     @GetMapping("/proposals")
-    public ResponseEntity<?> getProposals(@RequestParam int page){
-        ArrayList<Proposal> nextProposals = new ArrayList<>();
+    public ResponseEntity<?> getProposals(@RequestParam int page, @RequestParam String typeSort){
         ArrayList<Proposal> proposals = new ArrayList<>(proposalService.findByStatus(Status.SENT));
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-
-        return ResponseEntity.ok(nextProposals);
+        List<Proposal> nextProposals = proposalService.paginateProposals(proposals,page);
+        return ResponseEntity.ok(proposalService.sortProposals(nextProposals, typeSort));
     }
-
-    @GetMapping("/proposals/reversed")
-    public ResponseEntity<?> getProposalsReversed(@RequestParam int page){
-        ArrayList<Proposal> nextProposals = new ArrayList<>();
-        ArrayList<Proposal> proposals = new ArrayList<>(proposalService.findByStatus(Status.SENT));
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-
-        Collections.reverse(nextProposals);
-
-        return ResponseEntity.ok(nextProposals);
-    }
-
-    @GetMapping("/proposals/sort")
-    public ResponseEntity<?> getProposalsSort(@RequestParam int page){
-        ArrayList<Proposal> nextProposals = new ArrayList<>();
-        ArrayList<Proposal> proposals = new ArrayList<>(proposalService.findByStatus(Status.SENT));
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-
-
-        nextProposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
-        return ResponseEntity.ok(nextProposals);
-    }
-
-
-
-
 
 
     @PostMapping("/proposal/accept")
     public ResponseEntity<?> accept(@RequestBody ChangeStatusRequest changeStatusRequest){
-
         Proposal proposal = proposalRepository.findById(changeStatusRequest.getId()).orElseThrow();
-
         if (proposal.getStatus() != Status.SENT){
             return ResponseEntity.badRequest().body("Вы не можете изменить данную заявку!");
         }
+
 
 
        return proposalService.changeStatus(changeStatusRequest.getId(), Status.ACCEPTED);
@@ -139,7 +72,6 @@ public class OperatorController {
     public ResponseEntity<?> getProposalByName(@RequestParam String name, @RequestParam int page){
 
         List<Proposal> proposalsStart = proposalRepository.findAll();
-        List<Proposal> nextProposals = new ArrayList<>();
 
         List<Proposal> proposals = new ArrayList<>();
 
@@ -148,19 +80,7 @@ public class OperatorController {
                 proposals.add(proposal);
             }
         }
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
+        List<Proposal> nextProposals = proposalService.paginateProposals(proposals,page);
 
 
         if (nextProposals.size() == 1){

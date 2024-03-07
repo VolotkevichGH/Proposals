@@ -9,16 +9,12 @@ import com.example.testjwt.services.ProposalService;
 import com.example.testjwt.web.CreateProposalRequest;
 import com.example.testjwt.web.EditProposalRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.util.*;
 
 @RestController
@@ -41,24 +37,11 @@ public class UserController {
     }
 
     @GetMapping("/proposals")
-    public ResponseEntity<?> getProposals(@RequestParam int page){
+    public ResponseEntity<?> getProposals(@RequestParam int page, @RequestParam String typeSort){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-        ArrayList<Proposal> proposals = new ArrayList<>();
-        int finish = page*5;
-        int start = finish-5;
-
-        if (user.getProposals().size() >= finish) {
-            for (; start < finish; start++) {
-                proposals.add(user.getProposals().get(start));
-            }
-        } else {
-            for (; start < user.getProposals().size(); start++) {
-                proposals.add(user.getProposals().get(start));
-            }
-        }
-
-        return ResponseEntity.ok(proposals);
+        List<Proposal> proposals = proposalService.paginateProposals(user.getProposals(), page);
+        return ResponseEntity.ok(proposalService.sortProposals(proposals, typeSort));
     }
 
 
@@ -86,59 +69,6 @@ public class UserController {
 
         return proposalService.editProposal(proposal, editProposalRequest.getMessage());
     }
-
-
-
-    @GetMapping("/proposals/sort")
-    public ResponseEntity<?> getProposalsSort(@RequestParam int page){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-        List<Proposal> proposals = new ArrayList<>();
-        int finish = page*5;
-        int start = finish-5;
-
-
-        ArrayList<Proposal> userProp = new ArrayList<>(user.getProposals());
-
-        if (userProp.size() >= finish) {
-            for (; start < finish; start++) {
-                proposals.add(userProp.get(start));
-            }
-        } else {
-            for (; start < userProp.size(); start++) {
-                proposals.add(userProp.get(start));
-            }
-        }
-
-        proposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
-
-
-        return ResponseEntity.ok(proposals);
-    }
-
-    @GetMapping("/proposals/reversed")
-    public ResponseEntity<?> getProposalsReversed(@RequestParam int page){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-        List<Proposal> proposals = new ArrayList<>();
-        int finish = page*5;
-        int start = finish-5;
-
-        if (user.getProposals().size() >= finish) {
-            for (; start < finish; start++) {
-                proposals.add(user.getProposals().get(start));
-            }
-        } else {
-            for (; start < user.getProposals().size(); start++) {
-                proposals.add(user.getProposals().get(start));
-            }
-        }
-
-        Collections.reverse(proposals);
-
-        return ResponseEntity.ok(proposals);
-    }
-
 
 
 }

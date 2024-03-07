@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +72,32 @@ public class ProposalService {
         return ResponseEntity.ok(proposalRepository.save(proposal));
     }
 
+
+    public List<Proposal> paginateProposals(List<Proposal> list, int page){
+        ArrayList<Proposal> proposals = new ArrayList<>();
+        int finish = page*5;
+        int start = finish-5;
+
+        if (list.size() >= finish) {
+            for (; start < finish; start++) {
+                proposals.add(list.get(start));
+            }
+        } else {
+            for (; start < list.size(); start++) {
+                proposals.add(list.get(start));
+            }
+        }
+        return proposals;
+    }
+
+    public List<Proposal> sortProposals (List<Proposal> proposals, String type){
+        if (type.equals("reverse")){
+            Collections.reverse(proposals);
+        } else if (type.equals("sort")){
+            proposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
+        }
+        return proposals;
+    }
 
 
 

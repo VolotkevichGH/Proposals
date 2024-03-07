@@ -6,6 +6,7 @@ import com.example.testjwt.entity.Status;
 import com.example.testjwt.entity.User;
 import com.example.testjwt.repositories.UserRepository;
 import com.example.testjwt.services.ProposalService;
+import com.example.testjwt.services.UserService;
 import com.example.testjwt.web.ChangeStatusRequest;
 import com.example.testjwt.web.UserResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,123 +24,25 @@ public class AdminController {
 
     private final ProposalService proposalService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
 
     @GetMapping("/proposals")
-    public ResponseEntity<?> getProposals(@RequestParam int page){
+    public ResponseEntity<?> getProposals(@RequestParam int page, @RequestParam String typeSort){
         List<Proposal> proposals = new ArrayList<>();
         proposals.addAll(proposalService.findByStatus(Status.SENT));
         proposals.addAll(proposalService.findByStatus(Status.ACCEPTED));
         proposals.addAll(proposalService.findByStatus(Status.REJECTED));
 
+        List<Proposal> nextProposals = proposalService.paginateProposals(proposals, page);
 
-        List<Proposal> nextProposals = new ArrayList<>();
-
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-
-        return ResponseEntity.ok(nextProposals);
-    }
-
-    @GetMapping("/proposals/reversed")
-    public ResponseEntity<?> getProposalsReverse(@RequestParam int page){
-        List<Proposal> proposals = new ArrayList<>();
-        proposals.addAll(proposalService.findByStatus(Status.SENT));
-        proposals.addAll(proposalService.findByStatus(Status.ACCEPTED));
-        proposals.addAll(proposalService.findByStatus(Status.REJECTED));
-
-
-        List<Proposal> nextProposals = new ArrayList<>();
-
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-
-        Collections.reverse(nextProposals);
-        return ResponseEntity.ok(nextProposals);
-    }
-
-    @GetMapping("/proposals/sort")
-    public ResponseEntity<?> getProposalsSort(@RequestParam int page){
-        List<Proposal> proposals = new ArrayList<>();
-        proposals.addAll(proposalService.findByStatus(Status.SENT));
-        proposals.addAll(proposalService.findByStatus(Status.ACCEPTED));
-        proposals.addAll(proposalService.findByStatus(Status.REJECTED));
-
-
-        List<Proposal> nextProposals = new ArrayList<>();
-
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (proposals.size() >= finish) {
-            for (; start < finish; start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        } else {
-            for (; start < proposals.size(); start++) {
-                nextProposals.add(proposals.get(start));
-            }
-        }
-        nextProposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
-        return ResponseEntity.ok(nextProposals);
+        return ResponseEntity.ok(proposalService.sortProposals(nextProposals, typeSort));
     }
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsers(@RequestParam int page){
         List<User> allUsers = userRepository.findAll();
-        List<UserResponse> users = new ArrayList<>();
-
-        int finish = page*5;
-        int start = finish-5;
-
-        if (allUsers.size() >= finish) {
-            for (; start < finish; start++) {
-                UserResponse userResponse = UserResponse.builder()
-                        .id(allUsers.get(start).getId())
-                        .name(allUsers.get(start).getName())
-                        .phone(allUsers.get(start).getPhone())
-                        .roles(allUsers.get(start).getRoles())
-                        .username(allUsers.get(start).getUsername())
-                        .build();
-                users.add(userResponse);
-            }
-        } else {
-            for (; start < allUsers.size(); start++) {
-                UserResponse userResponse = UserResponse.builder()
-                        .id(allUsers.get(start).getId())
-                        .name(allUsers.get(start).getName())
-                        .phone(allUsers.get(start).getPhone())
-                        .roles(allUsers.get(start).getRoles())
-                        .username(allUsers.get(start).getUsername())
-                        .build();
-                users.add(userResponse);
-            }
-        }
-
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.paginateUsers(allUsers, page));
     }
 
 
@@ -147,7 +50,6 @@ public class AdminController {
     public ResponseEntity<?> getUsersByName(@RequestParam int page, @RequestParam String name){
         List<User> allUsersFromRepo = userRepository.findAll();
         List<User> allUsers = new ArrayList<>();
-        List<UserResponse> users = new ArrayList<>();
 
         for (User user:allUsersFromRepo){
             if (user.getName().contains(name)){
@@ -155,47 +57,14 @@ public class AdminController {
             }
         }
 
-        int finish = page*5;
-        int start = finish-5;
-
-        if (allUsers.size() >= finish) {
-            for (; start < finish; start++) {
-                UserResponse userResponse = UserResponse.builder()
-                        .id(allUsers.get(start).getId())
-                        .name(allUsers.get(start).getName())
-                        .phone(allUsers.get(start).getPhone())
-                        .roles(allUsers.get(start).getRoles())
-                        .username(allUsers.get(start).getUsername())
-                        .build();
-                users.add(userResponse);
-            }
-        } else {
-            for (; start < allUsers.size(); start++) {
-                UserResponse userResponse = UserResponse.builder()
-                        .id(allUsers.get(start).getId())
-                        .name(allUsers.get(start).getName())
-                        .phone(allUsers.get(start).getPhone())
-                        .roles(allUsers.get(start).getRoles())
-                        .username(allUsers.get(start).getUsername())
-                        .build();
-                users.add(userResponse);
-            }
-        }
-
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.paginateUsers(allUsers, page));
     }
 
 
     @PostMapping("/set/role/operator")
     public ResponseEntity<?> setOperator(@RequestBody ChangeStatusRequest changeStatusRequest){
         User user = userRepository.findById(changeStatusRequest.getId()).orElseThrow();
-        if (user.getRoles().contains(RoleType.ROLE_OPERATOR)){
-            return ResponseEntity.badRequest().body("Пользователь уже является оператором!");
-        }
-        Set<RoleType> roles = user.getRoles();
-        roles.add(RoleType.ROLE_OPERATOR);
-        user.setRoles(roles);
-        return ResponseEntity.ok(userRepository.save(user));
+        return userService.setRole(user, RoleType.ROLE_OPERATOR);
     }
 
 }
