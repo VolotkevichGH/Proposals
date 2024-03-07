@@ -13,9 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -66,7 +64,9 @@ public class OperatorController {
             }
         }
 
-        return ResponseEntity.ok(nextProposals.stream().map(Proposal::getDateOfCreate).toList().reversed());
+        Collections.reverse(nextProposals);
+
+        return ResponseEntity.ok(nextProposals);
     }
 
     @GetMapping("/proposals/sort")
@@ -88,8 +88,8 @@ public class OperatorController {
         }
 
 
-
-        return ResponseEntity.ok(nextProposals.stream().map(Proposal::getDateOfCreate));
+        nextProposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
+        return ResponseEntity.ok(nextProposals);
     }
 
 

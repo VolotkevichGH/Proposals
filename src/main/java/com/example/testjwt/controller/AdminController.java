@@ -13,9 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,7 +76,8 @@ public class AdminController {
             }
         }
 
-        return ResponseEntity.ok(nextProposals.stream().map(Proposal::getDateOfCreate).toList().reversed());
+        Collections.reverse(nextProposals);
+        return ResponseEntity.ok(nextProposals);
     }
 
     @GetMapping("/proposals/sort")
@@ -104,8 +103,8 @@ public class AdminController {
                 nextProposals.add(proposals.get(start));
             }
         }
-
-        return ResponseEntity.ok(nextProposals.stream().map(Proposal::getDateOfCreate));
+        nextProposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
+        return ResponseEntity.ok(nextProposals);
     }
 
     @GetMapping("/users")

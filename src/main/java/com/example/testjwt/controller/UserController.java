@@ -97,16 +97,23 @@ public class UserController {
         int finish = page*5;
         int start = finish-5;
 
-        if (user.getProposals().size() >= finish) {
+
+        ArrayList<Proposal> userProp = new ArrayList<>(user.getProposals());
+
+        if (userProp.size() >= finish) {
             for (; start < finish; start++) {
-                proposals.add(user.getProposals().get(start));
+                proposals.add(userProp.get(start));
             }
         } else {
-            for (; start < user.getProposals().size(); start++) {
-                proposals.add(user.getProposals().get(start));
+            for (; start < userProp.size(); start++) {
+                proposals.add(userProp.get(start));
             }
         }
-        return ResponseEntity.ok(proposals.stream().map(Proposal::getDateOfCreate));
+
+        proposals.sort(Comparator.comparing(Proposal::getDateOfCreate));
+
+
+        return ResponseEntity.ok(proposals);
     }
 
     @GetMapping("/proposals/reversed")
@@ -127,7 +134,9 @@ public class UserController {
             }
         }
 
-        return ResponseEntity.ok(proposals.stream().map(Proposal::getDateOfCreate).toList().reversed());
+        Collections.reverse(proposals);
+
+        return ResponseEntity.ok(proposals);
     }
 
 

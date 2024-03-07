@@ -28,4 +28,9 @@ public class Proposal {
 
 
 
+    public int compareTo(Proposal employee) {
+        return getDateOfCreate().compareTo(employee.getDateOfCreate());
+    }
+
+
 }
