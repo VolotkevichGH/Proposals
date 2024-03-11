@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-refresh-tokens
+      author: Vsevolod
+      changes:
+        - createTable:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_user_refresh_token
+                    references: app_users(id)
+                    unique: true
+                    nullable: false
+              - column:
+                  name: token
+                  type: varchar(555)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: expiry_date
+                  type: datetime
+                  constraints:
+                    unique: false
+                    nullable: false
+

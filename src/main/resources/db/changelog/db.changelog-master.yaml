@@ -3,3 +3,5 @@ databaseChangeLog:
         file: db/changelog/v1/create-tables.yaml
   - include:
       file: db/changelog/v1/insert-users.yaml
+  - include:
+      file: db/changelog/v1/create-table-refresh-tokens.yaml

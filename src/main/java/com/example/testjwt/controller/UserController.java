@@ -9,6 +9,7 @@ import com.example.testjwt.services.ProposalService;
 import com.example.testjwt.web.CreateProposalRequest;
 import com.example.testjwt.web.EditProposalRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

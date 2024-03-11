@@ -1,16 +1,12 @@
 package com.example.testjwt.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.redis.core.RedisHash;
-import org.springframework.data.redis.core.index.Indexed;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.Instant;
 
-@RedisHash("refresh_tokens")
+@Entity
+@Table(name = "refresh_tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,15 +14,9 @@ import java.time.Instant;
 public class RefreshToken {
 
     @Id
-    @Indexed
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Indexed
     private Long userId;
-
-    @Indexed
     private String token;
-
-    @Indexed
     private Instant expiryDate;
 }

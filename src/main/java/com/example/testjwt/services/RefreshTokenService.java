@@ -3,6 +3,7 @@ package com.example.testjwt.services;
 import com.example.testjwt.entity.RefreshToken;
 import com.example.testjwt.exception.RefreshTokenException;
 import com.example.testjwt.repositories.RefreshTokenRepository;
+import com.example.testjwt.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class RefreshTokenService {
     @Value("${app.jwt.refreshTokenExpiration}")
     private Duration refreshTokenExpiration;
 
-
+    private final UserRepository userRepository;
     private final  RefreshTokenRepository refreshTokenRepository;
 
 
