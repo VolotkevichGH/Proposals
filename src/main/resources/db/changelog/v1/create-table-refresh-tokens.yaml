@@ -19,7 +19,7 @@ databaseChangeLog:
                   constraints:
                     foreignKeyName: fk_user_refresh_token
                     references: app_users(id)
-                    unique: true
+                    unique: false
                     nullable: false
               - column:
                   name: token
